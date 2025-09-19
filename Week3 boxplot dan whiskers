@@ -1,0 +1,62 @@
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# 1. Generate synthetic data
+# Create two datasets with different distributions
+data_februari = np.array([8.3, 38.4, 29.5, 3.0, 33.0, 9.3, 3.5])
+data_agustus = np.array([8.3, 38.6, 29.7, 3.0, 33.1, 9.3, 3.5])
+
+data_dict = {
+    'Februari': data_februari,
+    'Agustus': data_agustus
+}
+
+# 1. Hitung statistik (Q1, median, Q3, IQR, outliers, varians, std dev)
+stats_list = []
+for name, data in data_dict.items():
+    q1 = np.percentile(data, 25)
+    median = np.percentile(data, 50)
+    q3 = np.percentile(data, 75)
+    iqr = q3 - q1
+    lower_fence = q1 - 1.5 * iqr
+    upper_fence = q3 + 1.5 * iqr
+    
+    # Outlier
+    outliers = data[(data < lower_fence) | (data > upper_fence)]
+    
+    # Variance & Std Dev (sampel)
+    variance = np.var(data, ddof=1)
+    std_dev = np.std(data, ddof=1)
+    
+    stats_list.append({
+        'Dataset': name,
+        'Median': median,
+        'Q1': q1,
+        'Q3': q3,
+        'IQR': iqr,
+        'Lower Fence': lower_fence,
+        'Upper Fence': upper_fence,
+        'Outliers': outliers,
+        'Std Dev': std_dev,
+        'Variance': variance
+    })
+
+# 3. Create a DataFrame from the calculated statistics
+stats_df = pd.DataFrame(stats_list)
+print("Calculated Statistic:")
+print(stats_df.to_string())
+print("\n")
+
+# 4. Create the box plot
+fig, ax = plt.subplots(figsize=(8, 6))
+ax.boxplot([data_februari, data_agustus], labels=data_dict.keys(), patch_artist=True)
+ax.set_title('Boxplot Jumlah Penduduk Usia 15 Tahun ke Atas (2024)')
+ax.set_ylabel('Jumlah (juta)')
+ax.grid(axis='y', linestyle='--', alpha=0.7)
+
+# Save the plot to a file
+plt.savefig('box_plots.png')
+print("Box plot saved as 'box_plots.png'")
+plt.show()
+
